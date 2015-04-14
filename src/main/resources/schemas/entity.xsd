@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-<xs:element name="Entity" type="EntityType" xmlns:xs="http://www.w3.org/2001/XMLSchema" />
+<xs:element name="Entities" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>General entities collection in ALM.</xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Entity" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="TotalResults" type="xs:int" use="required">
+      <xs:annotation>
+        <xs:documentation>
+                The count of entity instances in the collection.  
+              </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+</xs:element>
 
-<xs:complexType name="EntityType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="Entity" type="Entity" xmlns:xs="http://www.w3.org/2001/XMLSchema" />
+
+<xs:complexType name="Entity" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:sequence>
-    <xs:element name="Fields" type="FieldsType" />
+    <xs:element name="Fields" type="Fields" />
     <xs:element name="RelatedEntities" minOccurs="0">
       <xs:annotation>
         <xs:documentation>
@@ -17,7 +36,7 @@
           <xs:element name="Relation" minOccurs="0" maxOccurs="unbounded">
             <xs:complexType>
               <xs:sequence>
-                <xs:element name="Entity" type="EntityType" />
+                <xs:element name="Entity" type="Entity" />
               </xs:sequence>
               <xs:attribute name="Alias" type="xs:string" use="required" />
             </xs:complexType>
@@ -29,7 +48,7 @@
   <xs:attribute name="Type" type="xs:string" use="required" />
 </xs:complexType>
 
-<xs:complexType name="FieldType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:complexType name="Field" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:sequence>
     <xs:element name="Value" minOccurs="0" maxOccurs="unbounded">
       <xs:complexType>
@@ -45,9 +64,9 @@
   <xs:attribute name="Name" use="required" />
 </xs:complexType>
  
-<xs:complexType name="FieldsType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:complexType name="Fields" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:sequence>
-    <xs:element name="Field" type="FieldType" maxOccurs="unbounded" />
+    <xs:element name="Field" type="Field" maxOccurs="unbounded" />
   </xs:sequence>
 </xs:complexType>
 
