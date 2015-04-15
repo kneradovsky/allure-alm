@@ -3,13 +3,14 @@ package ru.sbt.qa.alm;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,21 +23,22 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.cookie.CookieSpec;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hp.alm.rest.Entities;
 import com.hp.alm.rest.Entity;
+import com.hp.alm.rest.ObjectFactory;
 
 
 
@@ -156,31 +159,28 @@ public class RestConnector {
 		
 	}
 	
-	public boolean post(String url,String data) {
-		String posturi=resturl+url;
-		HttpPost p = new HttpPost(posturi);
-		return execRequest(p,data);
-	}
-	
-	public boolean put(String url,String data) {
-		String posturi=resturl+url;
-		HttpPut p = new HttpPut(posturi);
-		return execRequest(p,data);
-	}
-	
-	public boolean execRequest(HttpEntityEnclosingRequest req,String data) {
+	public String execRequest(HttpEntityEnclosingRequestBase req,String data) {
 		try {
-			req.setEntity(new StringEntity(data));
+			if(data!=null) {
+				req.setEntity(new StringEntity(data));
+				req.setHeader("Content-type", "application/xml");
+			}
 			HttpResponse resp = client.execute((HttpUriRequest) req);
 			logger.debug("request:"+req.getRequestLine().toString());
 			logger.debug(resp.getStatusLine().toString());
 			logger.debug(Arrays.toString(resp.getAllHeaders()));
 			int code = resp.getStatusLine().getStatusCode();
-			return (code>=200 && code<=399); 			
+			if(code>=200 && code<=399) {
+				HttpEntity ent = resp.getEntity();
+				String entContents = EntityUtils.toString(ent);
+				return entContents;				
+			}
 		} catch (IOException e) {
 			logger.debug("execRequest exception "+req.getRequestLine().toString(), e);
-			return false;
-		} 
+		} finally {
+			req.releaseConnection();
+		}
+		return null;
 	}
 	
 	public <T> T unmarshall(String content,Class<T> cls) {
@@ -216,16 +216,45 @@ public class RestConnector {
 		return unmarshall(content, Entities.class);
 	}
 	
-	public <T> boolean postObj(String url,T obj) {
-		String content = marshall(obj);
-		if(content==null) return false;
-		return post(url,content);
+	public Entity postEntity(String url,Entity ent) {
+		String posturi=resturl+url;
+		HttpPost p = new HttpPost(posturi);
+		return storeEntity(p, ent);
 	}
 	
-	public <T> boolean putObj(String url,T obj) {
-		String content = marshall(obj);
-		if(content==null) return false;
-		return put(url,content);
+	public Entity storeEntity(HttpEntityEnclosingRequestBase req, Entity ent) {
+		ObjectFactory fact = new ObjectFactory();
+		String content = marshall(fact.createEntity(ent));
+		if(content==null) return null;
+		String result=execRequest(req, content);
+		return unmarshall(result, Entity.class);
+	}
+	
+	public Map<String,String> entity2Map(Entity ent) {
+		Map<String,String> result = new HashMap<>();
+		ent.getFields().getField().forEach(p -> {if(p.getValue().size()>0) result.put(p.getName(), p.getValue().get(0).getValue()); else result.put(p.getName(),"");});
+		return result;
+	}
+	
+	public boolean postRunUrlAttachment(Entity ent,String name,String url) {
+		Map<String,String> entvals=entity2Map(ent);
+		String posturi=resturl+"/runs/"+entvals.get("id")+"/attachments";
+		String data="[InternetShortcut]\r\nURL="+url+"\r\n";
+		HttpPost p = new HttpPost(posturi);
+		
+		byte[] databytes = null;
+		try { databytes=data.getBytes("UTF-16"); }
+		catch(UnsupportedEncodingException e) {logger.debug("Encoding error",e);}
+		HttpEntity httpent = MultipartEntityBuilder.create()
+				.addPart("filename",new StringBody(name,ContentType.MULTIPART_FORM_DATA))
+				.addPart("description",new StringBody(url,ContentType.MULTIPART_FORM_DATA))
+				.addPart("override-existing-attachment",new StringBody("Y",ContentType.MULTIPART_FORM_DATA))
+				.addBinaryBody("file", databytes , ContentType.TEXT_PLAIN, name)
+				.build();
+		p.setEntity(httpent);
+		String result = execRequest(p, null);
+		logger.debug("post run attachment result:"+result);
+		return true;
 	}
 
 }

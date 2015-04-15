@@ -102,35 +102,41 @@ public class AlmReporter {
 				params.put("query","{test-id["+tc.testId+"]}");
 				params.put("order-by", "{id[DESC]}");
 				Entities ents=almcon.getEntities("/test-instances",params);
-				Entity ent = ents.getEntity().get(0);
-				int fieldsfound=0;
-				for(Field fld : ent.getFields().getField()) {
-					switch(fld.getName()) {
-					case "id" : tc.testInstId=fld.getValue().get(0).getValue();fieldsfound++;break;
-					case "cycle-id":tc.testCycleId=fld.getValue().get(0).getValue();fieldsfound++;break;
-					}
-					if(fieldsfound>=2) break;
+				if(ents==null) {
+					logger.warn("Connection error");
+					continue;
 				}
+				if(ents.getTotalResults()==0) {
+					logger.warn("Testcase "+tc.testId+" has no test instance in the ALM. Please check if it's a part of any TestSet");
+					continue;
+				}
+				Entity ent = ents.getEntity().get(0);
+				Map<String,String> entvals = almcon.entity2Map(ent);
+				tc.testInstId=entvals.get("id");
+				tc.testCycleId=entvals.get("cycle-id");
 				String status,owner,comments;
 				Statistic stats = tc.story.getStatistic();
 				if(stats.getFailed()>0)
-					status="FAILED";
+					status="Failed";
 				else if(stats.getPassed()!=stats.getTotal())
 					status="Blocked";
 				else status="Passed";
 				owner = System.getProperty("user.name");
-				comments = "<h3><a href=\""+repBaseURL+"#/features/"+tc.story.getUid()+"\">Reports</a></h3>";
+				comments = "<html><body> <a href=\""+repBaseURL+"#/features/"+tc.story.getUid()+"\" target=\"_blank\">Report</a></body></html>";
+				String runname=tc.story.getTitle().substring(tc.testId.length()+1); //return Title without testid
 				Entity postent = new Entity().withType("run")
 						.withFields(new Fields().withField(
 								new Field().withName("cycle-id").withValue(new Value().withValue(tc.testCycleId)),
-								new Field().withName("name").withValue(new Value().withValue(tc.story.getTitle())),
+								new Field().withName("name").withValue(new Value().withValue(runname)),
 								new Field().withName("status").withValue(new Value().withValue(status)),
-								new Field().withName("testid").withValue(new Value().withValue(tc.testId)),
-								new Field().withName("testcycle-id").withValue(new Value().withValue(tc.testInstId)),
+								new Field().withName("test-id").withValue(new Value().withValue(tc.testId)),
+								new Field().withName("testcycl-id").withValue(new Value().withValue(tc.testInstId)),
 								new Field().withName("owner").withValue(new Value().withValue(owner)),
-								new Field().withName("comments").withValue(new Value().withValue(comments))
+								new Field().withName("comments").withValue(new Value().withValue(comments)),
+								new Field().withName("subtype-id").withValue(new Value().withValue("hp.qc.run.MANUAL"))
 								));
-				almcon.putObj("/runs/", postent);
+				Entity resent = almcon.postEntity("/runs/", postent);
+				almcon.postRunUrlAttachment(resent,runname+"result.url",repBaseURL+"#/features/"+tc.story.getUid());
 			}
 		} catch(JAXBException e) {
 			logger.debug("marshal/unmarshal error",e);
