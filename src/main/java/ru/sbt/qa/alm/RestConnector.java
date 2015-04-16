@@ -31,13 +31,13 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hp.alm.rest.Entities;
 import com.hp.alm.rest.Entity;
+import com.hp.alm.rest.Field;
+import com.hp.alm.rest.Field.Value;
 import com.hp.alm.rest.ObjectFactory;
 
 
@@ -222,6 +224,12 @@ public class RestConnector {
 		return storeEntity(p, ent);
 	}
 	
+	public Entity putEntity(String url,Entity ent) {
+		String posturi=resturl+url;
+		HttpPut p = new HttpPut(posturi);
+		return storeEntity(p, ent);
+	}
+	
 	public Entity storeEntity(HttpEntityEnclosingRequestBase req, Entity ent) {
 		ObjectFactory fact = new ObjectFactory();
 		String content = marshall(fact.createEntity(ent));
@@ -232,10 +240,12 @@ public class RestConnector {
 	
 	public Map<String,String> entity2Map(Entity ent) {
 		Map<String,String> result = new HashMap<>();
-		ent.getFields().getField().forEach(p -> {if(p.getValue().size()>0) result.put(p.getName(), p.getValue().get(0).getValue()); else result.put(p.getName(),"");});
+		Value emptyVal=new Value().withValue("");
+		ent.getFields().getField()
+			.forEach(p -> result.put(p.getName(), p.getValue().stream().findFirst().orElse(emptyVal).getValue()));
 		return result;
 	}
-	
+
 	public boolean postRunUrlAttachment(Entity ent,String name,String url) {
 		Map<String,String> entvals=entity2Map(ent);
 		String posturi=resturl+"/runs/"+entvals.get("id")+"/attachments";
