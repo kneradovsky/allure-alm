@@ -7,6 +7,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -50,6 +53,7 @@ import com.hp.alm.rest.Entities;
 import com.hp.alm.rest.Entity;
 import com.hp.alm.rest.Field;
 import com.hp.alm.rest.Field.Value;
+import com.hp.alm.rest.Fields;
 import com.hp.alm.rest.ObjectFactory;
 
 
@@ -65,6 +69,7 @@ public class RestConnector {
 	Marshaller marshaller;
 	Unmarshaller unmarshaller;
 	RequestConfig rqcnf;
+	private final static String restCharset="UTF-8";
 	public RestConnector(String url,String domain,String project) throws JAXBException {
 		this.baseurl=url;
 		this.domain=domain;
@@ -164,7 +169,7 @@ public class RestConnector {
 	public String execRequest(HttpEntityEnclosingRequestBase req,String data) {
 		try {
 			if(data!=null) {
-				req.setEntity(new StringEntity(data));
+				req.setEntity(new StringEntity(data,restCharset));
 				req.setHeader("Content-type", "application/xml");
 			}
 			HttpResponse resp = client.execute((HttpUriRequest) req);
@@ -172,10 +177,14 @@ public class RestConnector {
 			logger.debug(resp.getStatusLine().toString());
 			logger.debug(Arrays.toString(resp.getAllHeaders()));
 			int code = resp.getStatusLine().getStatusCode();
+			HttpEntity ent = resp.getEntity();
+			String entContents = EntityUtils.toString(ent,restCharset);
 			if(code>=200 && code<=399) {
-				HttpEntity ent = resp.getEntity();
-				String entContents = EntityUtils.toString(ent);
 				return entContents;				
+			} else {
+				//report 
+				logger.debug("Server error:"+req.getRequestLine().toString());
+				logger.debug(entContents);
 			}
 		} catch (IOException e) {
 			logger.debug("execRequest exception "+req.getRequestLine().toString(), e);
@@ -265,6 +274,41 @@ public class RestConnector {
 		String result = execRequest(p, null);
 		logger.debug("post run attachment result:"+result);
 		return true;
+	}
+	
+	public Entity createFolder(String folderName) {
+		Path path = Paths.get(folderName);
+		String currentParentId="0";
+		Entity currentFolder=null;
+		for(int i=0;i<path.getNameCount();i++) {
+			String name=path.getName(i).toString();
+			try {
+				currentFolder=checkAndCreateFolder(currentParentId, name);
+				currentParentId=currentFolder.getFields().getField().stream().
+						filter(p -> p.getName().equals("id")).findFirst().map(Field::getValue).get().stream().
+						findFirst().map(Value::getValue).get();
+			} catch(NullPointerException e) {
+				logger.error("NullPointer while creating test folders",e);
+				return null;
+			}
+		}
+		return currentFolder;
+	}
+	
+	protected Entity checkAndCreateFolder(String parentId,String name) {
+		Map<String,String> params = new HashMap<>();
+		params.put("query","{parent-id["+parentId+"];name['"+name+"']}");
+		Entities ents = getEntities("/test-set-folders", params);
+		if(ents.getTotalResults()!=0) {
+			return ents.getEntity().get(0);
+		}
+		//create folder;
+		Entity ent = new Entity().withType("test-set-folder").withFields(new Fields().withField(
+				new Field().withName("name").withValue(new Value().withValue(name)),
+				new Field().withName("parent-id").withValue(new Value().withValue(parentId))
+		));
+		Entity resent = postEntity("/test-set-folders", ent);
+		return resent;
 	}
 
 }

@@ -2,8 +2,11 @@ package ru.sbt.qa.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +33,8 @@ import com.hp.alm.rest.Entity;
 import com.hp.alm.rest.Field;
 import com.hp.alm.rest.Field.Value;
 import com.hp.alm.rest.Fields;
-import com.hp.alm.rest.ObjectFactory;
+
+
 
 
 class AlmTestCase {
@@ -55,7 +59,7 @@ public class AlmReporter {
 		String baseUrl,dataFolder;
 		Properties props = new Properties();
 		try {
-			props.load(AlmReporter.class.getResourceAsStream("/alm-report.properties"));
+			props.load(new InputStreamReader(AlmReporter.class.getResourceAsStream("/alm-report.properties"),"UTF-8"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -93,15 +97,16 @@ public class AlmReporter {
 		}
 	}
 	
-	protected Entity createEntity(AlmTestCase tc) {
-		ObjectFactory fact = new ObjectFactory();
-		return null;
-	}
-	
 	protected void generateAlmTestRuns(String repBaseURL) {
 		try {
 			almcon = new RestConnector(almprops.getProperty("alm.resturl"), almprops.getProperty("alm.domain"), almprops.getProperty("alm.project"));
-			boolean res = almcon.login(almprops.getProperty("alm.user"), almprops.getProperty("alm.password"));
+			if(!almcon.login(almprops.getProperty("alm.user"), almprops.getProperty("alm.password"))) {
+				logger.error("Login failed");
+				return;
+			}
+			String currentFolder = almprops.getProperty("alm.baseFolder","/")+"/"+
+					LocalDateTime.now().format(DateTimeFormatter.ofPattern(almprops.getProperty("alm.resFolderPtrn","yyyyMMddHHmmSS")));
+			almcon.createFolder(currentFolder);
 			String owner = System.getProperty("user.name");
 			String hostname = "local";
 			try {
