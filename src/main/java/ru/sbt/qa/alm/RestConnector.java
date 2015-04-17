@@ -183,8 +183,8 @@ public class RestConnector {
 				return entContents;				
 			} else {
 				//report 
-				logger.debug("Server error:"+req.getRequestLine().toString());
-				logger.debug(entContents);
+				logger.info("Server error:"+req.getRequestLine().toString());
+				logger.info(entContents);
 			}
 		} catch (IOException e) {
 			logger.debug("execRequest exception "+req.getRequestLine().toString(), e);
@@ -247,16 +247,10 @@ public class RestConnector {
 		return unmarshall(result, Entity.class);
 	}
 	
-	public Map<String,String> entity2Map(Entity ent) {
-		Map<String,String> result = new HashMap<>();
-		Value emptyVal=new Value().withValue("");
-		ent.getFields().getField()
-			.forEach(p -> result.put(p.getName(), p.getValue().stream().findFirst().orElse(emptyVal).getValue()));
-		return result;
-	}
+
 
 	public boolean postRunUrlAttachment(Entity ent,String name,String url) {
-		Map<String,String> entvals=entity2Map(ent);
+		Map<String,String> entvals=AlmEntityUtils.entity2Map(ent);
 		String posturi=resturl+"/runs/"+entvals.get("id")+"/attachments";
 		String data="[InternetShortcut]\r\nURL="+url+"\r\n";
 		HttpPost p = new HttpPost(posturi);
@@ -284,9 +278,7 @@ public class RestConnector {
 			String name=path.getName(i).toString();
 			try {
 				currentFolder=checkAndCreateFolder(currentParentId, name);
-				currentParentId=currentFolder.getFields().getField().stream().
-						filter(p -> p.getName().equals("id")).findFirst().map(Field::getValue).get().stream().
-						findFirst().map(Value::getValue).get();
+				currentParentId=AlmEntityUtils.getFieldValue(currentFolder, "id");
 			} catch(NullPointerException e) {
 				logger.error("NullPointer while creating test folders",e);
 				return null;
@@ -309,6 +301,46 @@ public class RestConnector {
 		));
 		Entity resent = postEntity("/test-set-folders", ent);
 		return resent;
+	}
+	
+	public Entity checkAndCreateTestSet(String parentId,String tsName) {
+		Map<String,String> params = new HashMap<>();
+		params.put("query","{parent-id["+parentId+"];name['"+tsName+"']}");
+		Entities ents = getEntities("/test-sets", params);
+		if(ents.getTotalResults()!=0) {
+			return ents.getEntity().get(0);
+		}
+		//create test set;
+		Entity ent = new Entity().withType("test-set").withFields(new Fields().withField(
+				new Field().withName("name").withValue(new Value().withValue(tsName)),
+				new Field().withName("parent-id").withValue(new Value().withValue(parentId)),
+				new Field().withName("subtype-id").withValue(new Value().withValue("hp.qc.test-set.default"))
+		));
+		Entity resent = postEntity("/test-sets", ent);
+		return resent;		
+	}
+	
+	public Entity checkAndCreateTestInstance(String testSetId,String testId) {
+		Map<String,String> params = new HashMap<>();
+		//get the number of test instances in the testcase
+		params.put("query","{cycle-id["+testSetId+"]}");
+		Entities ents = getEntities("/test-instances", params);
+		Integer testOrder = ents.getTotalResults()+1;
+		params.put("query","{cycle-id["+testSetId+"];test-id['"+testId+"']}");
+		ents = getEntities("/test-instances", params);
+		if(ents.getTotalResults()!=0) {
+			return ents.getEntity().get(0);
+		}
+		//create test set;
+		Entity ent = new Entity().withType("test-instance").withFields(new Fields().withField(
+				new Field().withName("cycle-id").withValue(new Value().withValue(testSetId)),
+				new Field().withName("test-id").withValue(new Value().withValue(testId)),
+				new Field().withName("test-order").withValue(new Value().withValue(testOrder.toString())),
+				new Field().withName("subtype-id").withValue(new Value().withValue("hp.qc.test-instance.MANUAL"))
+		));
+		Entity resent = postEntity("/test-instances", ent);
+		return resent;		
+		
 	}
 
 }

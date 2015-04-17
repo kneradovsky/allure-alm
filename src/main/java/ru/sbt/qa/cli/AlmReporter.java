@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.sbt.qa.alm.AlmEntityUtils;
 import ru.sbt.qa.alm.RestConnector;
 import ru.yandex.qatools.allure.data.AllureBehavior;
 import ru.yandex.qatools.allure.data.AllureFeature;
@@ -41,9 +43,11 @@ class AlmTestCase {
 	String testId;
 	String testInstId,testCycleId;
 	AllureStory story;
-	AlmTestCase(String tid,AllureStory st) {
+	AllureFeature feature;
+	AlmTestCase(String tid,AllureStory st,AllureFeature feat) {
 		testId=tid;
 		story=st;
+		feature=feat;
 	}
 }
 
@@ -87,7 +91,7 @@ public class AlmReporter {
 					String[] tparts = title.split(" ");
 					try {
 						Integer testId=Integer.parseInt(tparts[0]);
-						almtcs.add(new AlmTestCase(testId.toString(),st));
+						almtcs.add(new AlmTestCase(testId.toString(),st,f));
 					} catch(NumberFormatException e) {
 						logger.debug("The title '"+title+"' doesn't start with number", e);
 					}
@@ -106,7 +110,8 @@ public class AlmReporter {
 			}
 			String currentFolder = almprops.getProperty("alm.baseFolder","/")+"/"+
 					LocalDateTime.now().format(DateTimeFormatter.ofPattern(almprops.getProperty("alm.resFolderPtrn","yyyyMMddHHmmSS")));
-			almcon.createFolder(currentFolder);
+			Entity folder=almcon.createFolder(currentFolder);
+			String folderId=AlmEntityUtils.getFieldValue(folder, "id");
 			String owner = System.getProperty("user.name");
 			String hostname = "local";
 			try {
@@ -116,25 +121,19 @@ public class AlmReporter {
 			}
 			for(AlmTestCase tc : almtcs) {
 				Map<String,String> params=new HashMap<>();
-				params.put("query","{test-id["+tc.testId+"]}");
-				params.put("order-by", "{id[DESC]}");
-				Entities ents=almcon.getEntities("/test-instances",params);
-				if(ents==null) {
-					logger.warn("Connection error");
-					continue;
-				}
-				if(ents.getTotalResults()==0) {
-					logger.warn("Testcase "+tc.testId+" has no test instance in the ALM. Please check if it's a part of any TestSet");
-					continue;
-				}
-				Entity testInstance = ents.getEntity().get(0);
-				Map<String,String> entvals = almcon.entity2Map(testInstance);
-				tc.testInstId=entvals.get("id");
-				tc.testCycleId=entvals.get("cycle-id");
+				//check and create test set
+				Entity testSet=almcon.checkAndCreateTestSet(folderId, tc.feature.getTitle());
+				String testSetId=AlmEntityUtils.getFieldValue(testSet, "id");
+				Entity testInstance=almcon.checkAndCreateTestInstance(testSetId, tc.testId);
+				String testInstanceId=AlmEntityUtils.getFieldValue(testInstance, "id");
+				tc.testInstId=testInstanceId;
+				tc.testCycleId=testSetId;
 				String status,comments;
 				Statistic stats = tc.story.getStatistic();
 				if(stats.getFailed()>0)
 					status="Failed";
+				else if(stats.getPending()>0)
+					status="Not Completed";
 				else if(stats.getPassed()!=stats.getTotal())
 					status="Blocked";
 				else status="Passed";
@@ -158,13 +157,18 @@ public class AlmReporter {
 								new Field().withName("host").withValue(new Value().withValue(hostname))
 								));
 				Entity resent = almcon.postEntity("/runs/", postent);
+				
 				almcon.postRunUrlAttachment(resent,runname+"result.url",repBaseURL+"#/features/"+tc.story.getUid());
 				//update test-instance and config
-				String tstConfigId=testInstance.getFields().getField().stream().filter(p -> p.getName().equals("test-config-id")).findFirst().map(f -> f.getValue().get(0).getValue()).get();
+				//change test instance
+				AlmEntityUtils.setFieldValue(testInstance, "status", status);
+				almcon.putEntity("/test-instances/"+tc.testInstId, testInstance);
+				//update test-config
+				String tstConfigId=AlmEntityUtils.getFieldValue(testInstance, "test-config-id");
 				params=new HashMap<>();
 				params.put("query","{id["+tstConfigId+"]}");
 				params.put("order-by", "{id[DESC]}");
-				ents=almcon.getEntities("/test-configs",params);
+				Entities ents=almcon.getEntities("/test-configs",params);
 				if(ents==null) {
 					logger.warn("Connection error");
 					continue;
@@ -173,23 +177,9 @@ public class AlmReporter {
 					logger.warn("Test instance has no test config in the ALM. Please check if it's a part of any TestSet");
 					continue;
 				}
-				testInstance.setFields(new Fields().withField(
-						testInstance.getFields().getField().stream()
-						.<Field>map(f -> {
-							if(f.getName().equals("status")) f=new Field().withName(f.getName()).withValue(new Value().withValue(status)); 
-							return f;})
-						.collect(Collectors.toList())
-				));
 				Entity testConfig = ents.getEntity().get(0);
-				List<Field> flds = testConfig.getFields().getField().stream()
-					.<Field>map(f -> {
-						if(f.getName().equals("exec-status")) f=new Field().withName(f.getName()).withValue(new Value().withValue(status));
-						return f;})
-					.collect(Collectors.toList());
-				testConfig.getFields().withField(flds);
-				//change test instance
-				almcon.putEntity("/test-instances/"+tc.testInstId, testInstance);
-				//change test 
+				AlmEntityUtils.setFieldValue(testConfig, "exec-status", status);
+				//change test-config 
 				almcon.putEntity("/test-configs/"+tstConfigId, testConfig);
 			}
 		} catch(JAXBException e) {
