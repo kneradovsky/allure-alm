@@ -14,7 +14,7 @@ h2 {
 
 h3 {
 	position: relative;
-	left: 50px;
+	left: 0px;
 	color: #000000;
 	font-size: 15px;
 	margin: 0px 0px 0px 0px;
@@ -34,47 +34,27 @@ span {
 	position: relative;
 }
 
-span.passed {
+td {
+	font-size: 15px;
+}
+
+.passed {
 	background-color: #5cb85c;
-	position: relative;
-	color: #101010;
-	height: 15px;
-	border-radius: 5px;
-	float: right;	
 }
 
-span.failed {
+.failed {
 	background-color: #d9534f;
-	position: relative;
-	color: #101010;
-	height: 15px;
-	border-radius: 5px;
-	float: right;	
 }
 
-span.pending {
+.pending {
 	background-color: #9f94bf;
-	position: relative;
-	color: #101010;
-	height: 15px;
-	border-radius: 5px;
-	float: right;	
 }
-span.canceled {
+.canceled {
 	background-color: #ddd;
-	position: relative;
-	color: #101010;
-	height: 15px;
-	border-radius: 5px;
-	float: right;	
+	
 }
-span.broken {
+.broken {
 	background-color: #ffe4e0;
-	position: relative;
-	color: #101010;
-	height: 15px;
-	border-radius: 5px;
-	float: right;	
 }
 
 span.total {
@@ -94,11 +74,13 @@ h3.total{
 </head>
 <body>
 <h2>Test case ${tcname} statistic:</h2>
-<h3 class="passed"><span>Passed:</span><span class="passed">${passed}</span></h3>
-<h3 class="failed"><span>Failed:</span><span class="failed">${failed}</span></h3>
-<h3 class="pending"><span>Pending:</span><span class="pending">${pending}</span></h3>
-<h3 class="canceled"><span>Canceled:</span><span class="canceled">${canceled}</span></h3>
-<h3 class="broken"><span>Broken:</span><span class="broken">${broken}</span></h3>
+<table width="200">
+<tr><td><span>Passed:</span></td><td align="right" class="passed">${passed}</td></tr>
+<tr><td><span>Failed:</span></td><td align="right" class="failed">${failed}</td></tr>
+<tr><td><span>Pending:</span></td><td align="right" class="pending">${pending}</td></tr>
+<tr><td><span>Canceled:</span></td><td align="right" class="canceled">${canceled}</td></tr>
+<tr><td><span>Broken:</span></td><td align="right" class="broken">${broken}</td></tr>
+</table>
 <h3 class="total"><span>Total:</span><span class="total">${total}</span></h3>
 </body>
 </html>

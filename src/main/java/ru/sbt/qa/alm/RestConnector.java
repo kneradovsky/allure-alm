@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class RestConnector {
 	Marshaller marshaller;
 	Unmarshaller unmarshaller;
 	RequestConfig rqcnf;
-	private final static String restCharset="UTF-8";
+	public final static String restCharset="UTF-8";
 	public RestConnector(String url,String domain,String project) throws JAXBException {
 		this.baseurl=url;
 		this.domain=domain;
@@ -150,10 +149,13 @@ public class RestConnector {
 			req.setConfig(rqcnf);
 			HttpResponse resp = client.execute(req);
 			int code = resp.getStatusLine().getStatusCode();
+			HttpEntity ent = resp.getEntity();
+			String entContents = EntityUtils.toString(ent);
 			if(code==HttpURLConnection.HTTP_OK) {
-				HttpEntity ent = resp.getEntity();
-				String entContents = EntityUtils.toString(ent);
 				return entContents;
+			} else {
+				logger.debug("ServerError: "+resp.getStatusLine().toString());
+				logger.debug("Body:"+entContents);
 			}
 			return null;
 		} catch (URISyntaxException | IOException e) {
@@ -250,8 +252,8 @@ public class RestConnector {
 
 
 	public boolean postRunUrlAttachment(Entity ent,String name,String url) {
-		Map<String,String> entvals=AlmEntityUtils.entity2Map(ent);
-		String posturi=resturl+"/runs/"+entvals.get("id")+"/attachments";
+		String runid = AlmEntityUtils.getFieldValue(ent, "id");
+		String posturi=resturl+"/runs/"+runid+"/attachments";
 		String data="[InternetShortcut]\r\nURL="+url+"\r\n";
 		HttpPost p = new HttpPost(posturi);
 		
