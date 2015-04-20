@@ -1,0 +1,104 @@
+<html>
+<head>
+<style>
+body {
+	background: #FFFFFF
+}
+h2 {
+	text-indent: 0px;
+	color: #000000;
+	font-size: 20px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+h3 {
+	position: relative;
+	left: 50px;
+	color: #000000;
+	font-size: 15px;
+	margin: 0px 0px 0px 0px;
+	width: 200px;
+	height: 20px;
+}
+
+h3 span.ph {
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;
+}
+
+span {
+	position: relative;
+}
+
+span.passed {
+	background-color: #5cb85c;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+
+span.failed {
+	background-color: #d9534f;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+
+span.pending {
+	background-color: #9f94bf;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+span.canceled {
+	background-color: #ddd;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+span.broken {
+	background-color: #ffe4e0;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+
+span.total {
+	border-radius: 0px;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+h3.total{
+	background-color: #eee;
+	text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+<h2>Test case ${tcname} statistic:</h2>
+<h3 class="passed"><span>Passed:</span><span class="passed">${passed}</span></h3>
+<h3 class="failed"><span>Failed:</span><span class="failed">${failed}</span></h3>
+<h3 class="pending"><span>Pending:</span><span class="pending">${pending}</span></h3>
+<h3 class="canceled"><span>Canceled:</span><span class="canceled">${canceled}</span></h3>
+<h3 class="broken"><span>Broken:</span><span class="broken">${broken}</span></h3>
+<h3 class="total"><span>Total:</span><span class="total">${total}</span></h3>
+</body>
+</html>
