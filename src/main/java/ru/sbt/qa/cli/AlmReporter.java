@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,10 +67,10 @@ public class AlmReporter {
 		Properties props = new Properties();
 		try {
 			InputStream is;
-			String propFilename = System.getProperty("almProps");
-			if(propFilename==null)
-				is=AlmReporter.class.getResourceAsStream("/alm-report.properties");
-			else is=new FileInputStream(propFilename);
+			System.out.println(Arrays.toString(args));
+			if(args.length>=3 && !(args[2]==null || args[2].isEmpty()))
+				is=new FileInputStream(args[2]);
+			else is=AlmReporter.class.getResourceAsStream("/alm-report.properties");
 			props.load(new InputStreamReader(is,RestConnector.restCharset));
 		} catch(IOException e) {
 			System.out.println("Alm properties load error");
