@@ -1,0 +1,86 @@
+<html>
+<head>
+<style>
+body {
+	background: #FFFFFF
+}
+h2 {
+	text-indent: 0px;
+	color: #000000;
+	font-size: 20px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+h3 {
+	position: relative;
+	left: 0px;
+	color: #000000;
+	font-size: 15px;
+	margin: 0px 0px 0px 0px;
+	width: 200px;
+	height: 20px;
+}
+
+h3 span.ph {
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;
+}
+
+span {
+	position: relative;
+}
+
+td {
+	font-size: 15px;
+}
+
+.passed {
+	background-color: #5cb85c;
+}
+
+.failed {
+	background-color: #d9534f;
+}
+
+.pending {
+	background-color: #9f94bf;
+}
+.canceled {
+	background-color: #ddd;
+	
+}
+.broken {
+	background-color: #ffe4e0;
+}
+
+span.total {
+	border-radius: 0px;
+	position: relative;
+	color: #101010;
+	height: 15px;
+	border-radius: 5px;
+	float: right;	
+}
+h3.total{
+	background-color: #eee;
+	text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+<h2>Test case ${tcname} statistic:</h2>
+<table width="200" border="0">
+<tr><td><span>Passed:</span></td><td align="right" class="passed">${passed}</td></tr>
+<tr><td><span>Failed:</span></td><td align="right" class="failed">${failed}</td></tr>
+<tr><td><span>Pending:</span></td><td align="right" class="pending">${pending}</td></tr>
+<tr><td><span>Canceled:</span></td><td align="right" class="canceled">${canceled}</td></tr>
+<tr><td><span>Broken:</span></td><td align="right" class="broken">${broken}</td></tr>
+</table>
+<h3 class="total"><span>Total:</span><span class="total">${total}</span></h3>
+</body>
+</html>
