@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,7 @@ public class AlmReporter {
 	Properties almprops;
 	RestConnector almcon;
 	Logger logger = LoggerFactory.getLogger(AlmReporter.class);
+	String template = "";
 	
 	public static void main(String[] args) {
 		String baseUrl,dataFolder;
@@ -77,6 +79,15 @@ public class AlmReporter {
 			e.printStackTrace();
 			return;
 		}
+		String template="";
+		try {
+			Optional<String> commentpath=Optional.ofNullable(props.getProperty("alm.commentTemplate"));
+			template=IOUtils.toString(AlmReporter.class.getResourceAsStream(commentpath.orElse("/alm-comment.html")),RestConnector.restCharset);
+		} catch(Throwable e) {
+			System.out.println("Comments template load error");
+			e.printStackTrace();
+			return;
+		}
 		if(args.length>=2) {
 			dataFolder=args[0];
 			baseUrl=args[1];
@@ -84,8 +95,10 @@ public class AlmReporter {
 			baseUrl=System.getProperty("baseUrl", "");
 			dataFolder=System.getProperty("dataFolder","");
 		}
+		
 		AlmReporter rep = new AlmReporter();
 		rep.almprops=props;
+		rep.template=template;
 		rep.readReportData(dataFolder);
 		rep.generateAlmTestRuns(baseUrl);
 		System.out.println("Done");
@@ -207,12 +220,7 @@ public class AlmReporter {
 	
 	protected String statisticToString(Statistic stat) {
 		
-		String template = "";
-		try {
-			template=IOUtils.toString(AlmReporter.class.getResourceAsStream("/alm-comment.html"),RestConnector.restCharset);
-		} catch(Throwable e) {
-			logger.info("Load comments template error",e);
-		}
+		
 		String res = template.replaceAll("\\$\\{passed\\}", new Long(stat.getPassed()).toString()).
 				replaceAll("\\$\\{failed\\}", new Long(stat.getFailed()).toString()).
 				replaceAll("\\$\\{pending\\}", new Long(stat.getPending()).toString()).
