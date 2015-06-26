@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Allure-alm by kneradovsky</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/kneradovsky/allure-alm">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/kneradovsky/allure-alm/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/kneradovsky/allure-alm/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Allure-alm</h1>
+          <p>Export generated allure results to HP ALM using alm rest api</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/kneradovsky">kneradovsky</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a id="allure-alm-exporter" class="anchor" href="#allure-alm-exporter" aria-hidden="true"><span class="octicon octicon-link"></span></a>allure-alm exporter</h1>
+
+<p>Export <a href="allure.qatools.ru">Allure</a> results to HP ALM using alm rest api</p>
+
+<h2>
+<a id="usage-workflow" class="anchor" href="#usage-workflow" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage workflow</h2>
+
+<ol>
+<li>Run youre tests</li>
+<li>Generate <a href="allure.qatools.ru">Allure</a> reports</li>
+<li>Export them to the HP ALM</li>
+</ol>
+
+<h2>
+<a id="sample-report" class="anchor" href="#sample-report" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample report</h2>
+
+<p>[TBD]</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>One can use the the exporter either as a standalone java application or from as a maven goal. The exporter accepts up to 3 command line parameters:</p>
+
+<ol>
+<li>Allure reports data folder (The folder that contains <em>behavior.json</em> file)</li>
+<li>Allute reports base url (The url of root of thepublished allure report. The root contains the <em>index.html</em>)</li>
+<li><p>File path of the HP ALM connection properties file </p></li>
+</ol>
+
+<ul>
+<li>If run with 2 parameters it loads alm-report.properties as the classpath resource </li>
+<li>if run without any parameters it loads alm-report.properties as the classpath resource and assumes that system properties <em>dataFolder</em> and <em>baseUrl</em> point to the data folder and base url respectively</li>
+</ul>
+
+<h3>
+<a id="alm-reportproperties" class="anchor" href="#alm-reportproperties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alm-report.properties</h3>
+
+<ul>
+<li>
+<em>alm.resturl</em> rest url of the hp alm </li>
+<li>
+<em>alm.domain</em> alm domain name<br>
+</li>
+<li>
+<em>alm.project</em> name of the alm project that contains reported test cases</li>
+<li>
+<em>alm.user</em> user that posts the report to the alm</li>
+<li>
+<em>alm.password</em> password of the alm.user </li>
+<li>
+<em>alm.baseFolder</em> base folder of the reported results in the alm test lab</li>
+<li>
+<em>alm.resFolderPtrn</em> Date Format template of the result folder </li>
+</ul>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
