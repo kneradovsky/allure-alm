@@ -337,7 +337,7 @@ public class RestConnector {
 		Entity ent = new Entity().withType("test-instance").withFields(new Fields().withField(
 				new Field().withName("cycle-id").withValue(new Value().withValue(testSetId)),
 				new Field().withName("test-id").withValue(new Value().withValue(testId)),
-				new Field().withName("test-order").withValue(new Value().withValue(testOrder.toString())),
+				//new Field().withName("test-order").withValue(new Value().withValue(testOrder.toString())),
 				new Field().withName("subtype-id").withValue(new Value().withValue("hp.qc.test-instance.MANUAL"))
 		));
 		Entity resent = postEntity("/test-instances", ent);
