@@ -82,27 +82,7 @@
                 	</plugins>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>ru.sbt.qa.cli.AlmReporter</mainClass>
-                    <arguments>
-                        <argument>${alm.dataFolder}</argument>
-                        <argument>${alm.baseUrl}</argument>
-                        <argument>${alm.properties}</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
-            <plugin>
+             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.3</version>
