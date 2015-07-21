@@ -7,8 +7,6 @@ import com.hp.alm.rest.Field;
 import com.hp.alm.rest.Fields;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.yandex.qatools.allure.data.*;
 
 import javax.xml.bind.JAXBException;
@@ -23,6 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * Created by sbt-neradovskiy-kl on 20.07.2015.
+ * version 1.0
  */
 class AlmTestCase {
     String testId;
@@ -112,6 +111,7 @@ public class Reporter {
             } catch(UnknownHostException e) {
                 logger.debug("Host resolution error",e);
             }
+            logger.info("Going to publish "+almtcs.size()+" testcases");
             for(AlmTestCase tc : almtcs) {
                 //check and create test set
                 Entity testSet=almcon.checkAndCreateTestSet(folderId, tc.feature.getTitle());
@@ -130,7 +130,7 @@ public class Reporter {
                 else if(stats.getPassed()!=stats.getTotal())
                     status="Blocked";
                 else status="Passed";
-
+                logger.info("Publishing testcase "+tc.story.getTitle()+" finished with status: " + status);
                 //change test instance
                 LocalDateTime curDateTime = LocalDateTime.now();
                 String curDate=curDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE),curTime=curDateTime.format(DateTimeFormatter.ofPattern("hh:MM:ss"));
@@ -179,7 +179,7 @@ public class Reporter {
                 else
                     resent= almcon.putEntity("/runs/"+testRunId, postent);
                 //add attachment
-                almcon.postRunUrlAttachment(resent,runname+"result.url",repBaseURL+"#/features/"+tc.story.getUid());
+                almcon.postRunUrlAttachment(resent,"case "+tc.testId+" result.url",repBaseURL+"#/features/"+tc.story.getUid());
             }
         } catch(JAXBException e) {
             logger.debug("marshal/unmarshal error",e);
