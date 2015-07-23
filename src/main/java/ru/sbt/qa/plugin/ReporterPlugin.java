@@ -51,6 +51,7 @@ public class ReporterPlugin extends AbstractMojo {
         InputStream is;
         List<Resource> resources = project.getTestResources();
         resources.addAll(project.getResources());
+        // get the resources path of the project calling the Mojo
         URL[] resurls = resources.stream().map(it -> {
             try {return new File(it.getDirectory()).toURI().toURL();}
             catch(Exception e){log.debug("Error converting "+it+ " to URL");}
@@ -58,25 +59,29 @@ public class ReporterPlugin extends AbstractMojo {
         }).toArray(c -> new URL[c]);
         ClassLoader rescl = URLClassLoader.newInstance(resurls);
         log.info("Loading properties from "+ almProperties);
+        //load properties from resources
         is=rescl.getResourceAsStream(almProperties);
         try {
+            //if failed then load from the filesystem
             if(is==null) is=new FileInputStream(almProperties);
             props.load(new InputStreamReader(is, RestConnector.restCharset));
         } catch(IOException e) {
             throw new MojoExecutionException("Failed to load properties",e);
         }
         log.info("loading template");
+        //loading template file from resources
         is = rescl.getResourceAsStream(commentTemplate);
         try {
+            //if failed then load from the filesystem
             if(is==null) is=new FileInputStream(commentTemplate);
             template = IOUtil.toString(is);
         } catch(IOException e) {
             throw new MojoExecutionException("Failed to load template",e);
         }
 
-        Reporter reporter = new Reporter(log);
-        reporter.setAlmprops(props);
-        reporter.setTemplate(template);
+        Reporter reporter = new Reporter();
+        reporter.setAlmprops(props); //set properties
+        reporter.setTemplate(template); //set template
         if(!reporter.readReportData(dataFolder.getAbsolutePath()))
             throw new MojoExecutionException("Can't read report data from "+dataFolder);
         reporter.generateAlmTestRuns(baseUrl.toString());

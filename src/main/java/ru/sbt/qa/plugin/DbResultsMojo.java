@@ -1,7 +1,6 @@
 package ru.sbt.qa.plugin;
 
 import org.apache.maven.doxia.siterenderer.Renderer;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -20,15 +19,14 @@ import javax.xml.bind.JAXB;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Created by sbt-neradovskiy-kl on 22.07.2015.
+ * Maven report plugin class to parse allure results and generate run report.
+ * Run report is the record [group-id,artifact-id,run time,features, test cases, test steps, result]
  */
 @Mojo(name = "dbreport",defaultPhase = LifecyclePhase.SITE)
 public class DbResultsMojo extends AbstractMavenReport {
@@ -95,6 +93,11 @@ public class DbResultsMojo extends AbstractMavenReport {
         return "Store run data to the OAT result db";
     }
 
+    /**
+     * Generates run report and stores it to the database
+     * @param locale
+     * @throws MavenReportException
+     */
     @Override
     protected void executeReport(Locale locale) throws MavenReportException {
         log = getLog();
@@ -119,9 +122,19 @@ public class DbResultsMojo extends AbstractMavenReport {
         log.info("Testrun stats: features="+features+" ,cases="+cases+" ,steps="+steps);
     }
 
+    /**
+     * Scans allure-results folder for result files. Parses each allure result file to TestSuiteResult
+     * @return List of TestSuiteResults
+     * @throws MavenReportException
+     */
     protected List<TestSuiteResult> parseAllureResults() throws MavenReportException{
         try {
             String[] results = allureResults.list((d, f) -> f.endsWith("testsuite.xml"));
+            if(results==null || results.length==0) {
+                log.info("Found [0] results");
+                return new ArrayList<TestSuiteResult>();
+            }
+            log.info("Found ["+results.length+"] results");
             List<TestSuiteResult> res = Stream.of(results).map(fn -> {
                         try {
                             log.info("Processing file:" + fn);
