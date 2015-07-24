@@ -32,10 +32,10 @@ public class ReporterPlugin extends AbstractMojo {
     @Parameter(property = "commentTemplate",name="commentTemplate",defaultValue = "/comment.html")
     private String commentTemplate;
 
-    @Parameter(property = "dataFolder")
+    @Parameter(property = "dataFolder",required=true)
     private File dataFolder;
 
-    @Parameter(property = "baseUrl")
+    @Parameter(property = "baseUrl",required = true)
     private URL baseUrl;
 
     @Parameter(defaultValue = "${project}",required = true, readonly = true)

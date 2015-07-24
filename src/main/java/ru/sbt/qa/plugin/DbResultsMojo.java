@@ -9,7 +9,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.AbstractMavenReport;
 import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import ru.yandex.qatools.allure.data.utils.BadXmlCharacterFilterReader;
 import ru.yandex.qatools.allure.model.Status;
 import ru.yandex.qatools.allure.model.TestCaseResult;
@@ -19,6 +21,10 @@ import javax.xml.bind.JAXB;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,16 +49,16 @@ public class DbResultsMojo extends AbstractMavenReport {
     @Parameter(defaultValue = "${basedir}/target/allure-results/")
     private File allureResults;
 
-    @Parameter(required = true)
+    @Parameter(required = false)
     private String databaseUrl;
 
-    @Parameter(required = false,defaultValue = "oatdb")
+    @Parameter(required = false)
     private String databaseId;
 
-    @Parameter(defaultValue = "",required = false)
+    @Parameter(required = false)
     private String username;
 
-    @Parameter(defaultValue = "",required = false)
+    @Parameter(required = false)
     private String password;
 
     private Log log;
@@ -119,7 +125,23 @@ public class DbResultsMojo extends AbstractMavenReport {
             }
         }
         features = featureNames.size();
-        log.info("Testrun stats: features="+features+" ,cases="+cases+" ,steps="+steps);
+        log.info("Testrun stats: features=" + features + " ,cases=" + cases + " ,steps=" + steps);
+        Connection db = getDatabaseConnection();
+        try {
+            db.setAutoCommit(false);
+            PreparedStatement stmt = db.prepareStatement("insert into bddruns(run_id,groupname,artifact,runtime,features,cases,steps,status)"+
+                                                        " values(bddruns_id_seq.nextval,?,?,sysdate,?,?,?,?)");
+            stmt.setString(1,group);
+            stmt.setString(2,artifact);
+            stmt.setInt(3, features);
+            stmt.setInt(4,cases);
+            stmt.setInt(5,steps);
+            stmt.setString(6, isPassed ? "PASSED":"FAILED");
+            stmt.execute();
+            db.commit();
+        } catch(Exception e) {
+            throw new MavenReportException("database error",e);
+        }
     }
 
     /**
@@ -152,5 +174,34 @@ public class DbResultsMojo extends AbstractMavenReport {
         }
     }
 
+    /**
+     * Creates database connection using plugin configuration properties
+     * @return
+     */
+    protected Connection getDatabaseConnection() throws MavenReportException {
+        if((username==null || username.isEmpty()) || (password==null || password.isEmpty()))
+            if(databaseId.isEmpty()) throw new MavenReportException("Neither username/password nor databaseId present in the configuration");
+            else {
+                Server databaseSrv = settings.getServer(databaseId);
+                username = databaseSrv.getUsername();
+                password = databaseSrv.getPassword();
+                Xpp3Dom conf;
+                try {
+                     conf = (Xpp3Dom) databaseSrv.getConfiguration();
+                } catch (Exception e) {
+                    throw new MavenReportException("read configuration error",e);
+                }
+                if(databaseUrl==null)
+                    databaseUrl = Optional.of(conf.getChild("databaseUrl"))
+                        .orElseThrow(() -> new MavenReportException("Please specify databaseUrl either in the settings.xml or in the plugin configuration section"))
+                        .getValue();
+            }
+        try {
+            Connection conn = DriverManager.getConnection(databaseUrl, username, password);
+            return conn;
+        } catch(SQLException e) {
+            throw new MavenReportException("read configuration error",e);
+        }
+    }
 }
 

@@ -1,45 +1,16 @@
 package ru.sbt.qa.cli;
 
-import java.io.File;
+import org.apache.commons.io.IOUtils;
+import ru.sbt.qa.alm.Reporter;
+import ru.sbt.qa.alm.RestConnector;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.sbt.qa.alm.AlmEntityUtils;
-import ru.sbt.qa.alm.Reporter;
-import ru.sbt.qa.alm.RestConnector;
-import ru.yandex.qatools.allure.data.AllureBehavior;
-import ru.yandex.qatools.allure.data.AllureFeature;
-import ru.yandex.qatools.allure.data.AllureStory;
-import ru.yandex.qatools.allure.data.AllureTestCaseInfo;
-import ru.yandex.qatools.allure.data.Statistic;
-import ru.yandex.qatools.allure.data.Time;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hp.alm.rest.Entities;
-import com.hp.alm.rest.Entity;
-import com.hp.alm.rest.Field;
-import com.hp.alm.rest.Field.Value;
-import com.hp.alm.rest.Fields;
 
 
 public class AlmReporter {
