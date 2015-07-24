@@ -127,6 +127,10 @@ public class Reporter {
                 String testSetId=AlmEntityUtils.getFieldValue(testSet, "id");
                 //check and create test set for the current result
                 Entity testInstance=almcon.checkAndCreateTestInstance(testSetId, tc.testId);
+                if(testInstance==null) {
+                    logger.info("error creating test instance for testID "+tc.testId);
+                    continue;
+                }
                 Map<String,String> fldsTestInst=AlmEntityUtils.entity2Map(testInstance);
                 String testInstanceId=fldsTestInst.get("id");
                 tc.testInstId=testInstanceId;
@@ -191,6 +195,10 @@ public class Reporter {
                     resent = almcon.postEntity("/runs/", postent); //create new test run
                 else
                     resent= almcon.putEntity("/runs/" + testRunId, postent); //modify test run
+                if(resent==null) {
+                    logger.info("TestRun create/modify error");
+                    continue;
+                }
                 //add attachment
                 almcon.postRunUrlAttachment(resent,"case "+tc.testId+" result.url",repBaseURL+"#/features/"+tc.story.getUid());
             }
