@@ -113,8 +113,8 @@ public class DbResultsMojo extends AbstractMavenReport {
         Integer features=0,cases=0,steps=0;
         List<TestSuiteResult> results = parseAllureResults();
         Set<String> featureNames = new HashSet<>();
-        cases = results.size();
         for(TestSuiteResult res : results) {
+            cases++;
             if(res==null) continue; //skip null testcases
             String featName = res.getLabels().stream().filter(it -> it.getName().equals("feature")).findFirst().get().getValue();
             featureNames.add(featName);
