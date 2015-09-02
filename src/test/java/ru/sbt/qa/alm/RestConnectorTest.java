@@ -6,8 +6,12 @@
 package ru.sbt.qa.alm;
 
 import com.hp.alm.rest.Entities;
-import com.hp.alm.rest.Entity;
-import com.hp.alm.rest.Field;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,53 +41,57 @@ public class RestConnectorTest {
     @AfterClass
     public static void tearDownClass() {
     }
-
-    
-    //@Test
-    public void testLogin() throws Exception {
-        almcon = new RestConnector("http://sbt-oaar-003/qcbin/rest/", "DEFAULT", "oat_board");
-        Assert.assertEquals(true, almcon.login("sbt-neradovskiy-kl", "123qweasd"));
-    } 
     
     public Properties getAlmprops() {
         return almprops;
     }
-
-    public RestConnectorTest setAlmprops(Properties almprops) {
-        this.almprops = almprops;
-        return this;
-    }
     
-    @Test
+    //@Test
     public void testGenerateAlmTestRuns() throws Exception {
         Map<String,String> params = new HashMap<>();
-        String testSetId = "";
         almcon = new RestConnector("http://sbt-oaar-003/qcbin/rest/", "DEFAULT", "oat_board");
         Assert.assertEquals(true, almcon.login("sbt-neradovskiy-kl", "123qweasd")); 
     
-        String currentFolder = "/Для эксперементов с СУДИР/НКП/Релиз 2/Регресс/АС АПККБ";
-        Entity folder = almcon.createFolder(currentFolder);
-        String folderId = AlmEntityUtils.getFieldValue(folder, "id");
-        
-        Entity testSet = almcon.checkAndCreateTestSet(folderId, "Синхронизация данных");
-            
-        params.put("query","{parent-id[" + folderId + "];name['Синхронизация данных']}");
-        Entities ents = almcon.getEntities("/test-sets", params);	
-                
+        String testSetId = "301";
+        Entities ents;
+        List<String> testIds = new ArrayList<>();
+
+        params.put("query","{contains-test-set.id[" + testSetId + "]}");
+        ents = almcon.getEntities("/test-instances", params);
+         
         if(ents.getTotalResults() != 0) {
-            testSetId = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "id");
-    
-            params.put("query","{contains-test-set.id[" + testSetId + "]}");
-            Entities ents2 = almcon.getEntities("/test-instances", params);
-        
-            String testId = AlmEntityUtils.getFieldValue(ents2.getEntity().get(0), "test-id");
-            
-            params.put("query","{id[" + testId + "]}");
-            Entities ents3 = almcon.getEntities("/tests", params);
-            
-            String testDescription = AlmEntityUtils.getFieldValue(ents3.getEntity().get(0), "description");
-        //    System.out.println(AlmEntityUtils.entity2Map(ents3.getEntity().get(0))); 
-        //    System.out.println(testDescription.replaceAll("<[^.]+>","")); 
+            for (int i = 0; i < ents.getTotalResults(); i++) {
+                testIds.add(AlmEntityUtils.getFieldValue(ents.getEntity().get(i), "test-id"));
+            } 
         }
+        
+        for (String testId : testIds) {
+            params.put("query","{id[" + testId + "]}");
+            ents = almcon.getEntities("/tests", params);
+            
+            String testName = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "name");
+            String encodeTestName = new String(testName.getBytes("iso-8859-1"), "UTF-8" );
+            
+            File feature = new File("src/test/resources/features/" + encodeTestName + ".feature");
+            
+            if (!feature.exists()) {
+                feature.createNewFile();
+                System.out.println("Фича создана");
+            }
+            
+            String testDesciption = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "description");
+            String encodeTestDesciption = new String(testDesciption.getBytes("iso-8859-1"), "UTF-8" );
+            String txtUnicodetestDescription = encodeTestDesciption.replaceAll("\\&nbsp;", "").replaceAll("\\<[^>]*>", "").replaceAll("&gt;", ">")
+                                                                   .replaceAll("&lt;", "<").replaceAll("&quot;", "\"").replaceAll("&laquo;", "В«").replaceAll("&raquo;", "В»");
+            Writer out = new BufferedWriter(new OutputStreamWriter(
+                         new FileOutputStream(feature), "UTF8"));
+            try {
+                out.append(txtUnicodetestDescription);
+            } finally {
+                out.flush();
+                out.close();
+            }
+        }      
     }
+
 }
