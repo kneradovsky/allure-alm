@@ -12,7 +12,6 @@ import java.io.Writer;
 import java.util.*;
 
 
-
 public class TestSuiteFormation {
     Properties almprops;
     RestConnector almcon;

@@ -1,7 +1,6 @@
 package ru.sbt.qa.cli;
 
 import org.apache.commons.io.IOUtils;
-import ru.sbt.qa.alm.Reporter;
 import ru.sbt.qa.alm.RestConnector;
 
 import java.io.FileInputStream;
