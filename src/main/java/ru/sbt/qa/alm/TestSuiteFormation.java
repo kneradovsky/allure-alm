@@ -11,17 +11,18 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.*;
 
-
+/**
+ *
+ * @author sbt-frantsuzov-sv
+ */
 public class TestSuiteFormation {
+    String featureName;
     Properties almprops;
     RestConnector almcon;
-    Logger logger = LoggerFactory.getLogger(TestSuiteFormation.class);
     Entities ents;
+    Logger logger = LoggerFactory.getLogger(TestSuiteFormation.class);
     Map<String,String> params = new HashMap<>();
     
-    
-    public TestSuiteFormation() { 
-    }
     
     public TestSuiteFormation setAlmprops(Properties almprops) {
         this.almprops = almprops;
@@ -37,9 +38,9 @@ public class TestSuiteFormation {
      * @param suiteId
      * @throws Exception 
      */
-    public void createFeaturesSuite(String suiteId) throws Exception {
+    public void createFeaturesSuite() throws Exception {
         List<String> testIds = new ArrayList<>();
-        String testSetId = suiteId;
+        String testSetId = almprops.getProperty("alm.testSetId");
         
         almcon = new RestConnector(almprops.getProperty("alm.resturl"), almprops.getProperty("alm.domain"), almprops.getProperty("alm.project"));
         
@@ -48,6 +49,13 @@ public class TestSuiteFormation {
             logger.error("Login failed");
             throw new Exception("Ахтунг! Ошбика авторизации...\n");
         }
+        
+        // запоминаем имя тест-сьюита для дальнейшей генерации имени фичи
+        params.put("query","{id[" + testSetId + "]}");
+        ents = almcon.getEntities("/test-sets", params);
+        
+        String testSetName = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "name");
+        featureName = new String(testSetName.getBytes("iso-8859-1"), "UTF-8" );
         
         // пробуем найти тест-сьюит по его id
         try {
@@ -72,45 +80,43 @@ public class TestSuiteFormation {
      */
     protected void generateFeatures(List<String> testids) throws Exception {
         List<String> testIds = testids;
-        String testName = "";
         String testDesciption = "";
         
-        for (String testId : testIds) {
-            // находим имя и описание каждого тест-кейса (для формирования фичи)
-            try {
-                params.put("query","{id[" + testId + "]}");
+        //создаем файл фичи с названием тест-кейса и расширением .feature
+        File feature = new File("src/test/resources/features/" + featureName + ".feature");
+            
+        if (!feature.exists()) {
+            feature.createNewFile();
+        } else {
+            throw new Exception("Фича уже создана! Нужно удалить старую...\n");
+        }
+        
+        // пишем в файл фичи описание из тест-кейса
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(feature), "UTF8"));
+        
+        // находим имя и описание каждого тест-кейса (для формирования фичи)
+        try {
+            for (int i = 0; i < testIds.size(); i++ ) {
+                params.put("query","{id[" + testIds.toArray()[i] + "]}");
                 ents = almcon.getEntities("/tests", params);
-            
-                testName = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "name");
+                
                 testDesciption = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "description");
-            }   catch (Exception ex) {
-                    throw new Exception("Ахтунг! Ошибка при поиске имени и описания тест-кейса...\n", ex);
-            }  
-            
-            // перекодируем результат в UTF-8
-            String encodeTestName = new String(testName.getBytes("iso-8859-1"), "UTF-8" );
-            String encodeTestDesciption = new String(testDesciption.getBytes("iso-8859-1"), "UTF-8" );
-            
-            //создаем файл фичи с названием тест-кейса и расширением .feature
-            File feature = new File("src/test/resources/features/" + encodeTestName + ".feature");
-            
-            if (!feature.exists()) {
-                feature.createNewFile();
-            }
-            
-            // убираем из описания тест-кейса html-тэги (или заменяем на нужные символы)
-            String txtUnicodetestDescription = HtmlToTxt(encodeTestDesciption);
-            
-            // пишем в файл фичи описание из тест-кейса
-            Writer out = new BufferedWriter(new OutputStreamWriter(
-                         new FileOutputStream(feature), "UTF8"));
-            try {
+                String encodeTestDesciption = new String(testDesciption.getBytes("iso-8859-1"), "UTF-8" );
+                // убираем из описания тест-кейса html-тэги (или заменяем на нужные символы)
+                String txtUnicodetestDescription = HtmlToTxt(encodeTestDesciption);
+                
+                if (i > 0) {
+                    String storyTitleFormated = txtUnicodetestDescription.substring(txtUnicodetestDescription.indexOf("@")); 
+                    txtUnicodetestDescription = storyTitleFormated;
+                }
+                
                 out.append(txtUnicodetestDescription);
-            } finally {
-                out.flush();
-                out.close();
-            }
+            }   
+        } catch (Exception ex) {
+            throw new Exception("Ахтунг! Ошибка при поиске имени и описания тест-кейса...\n", ex);
         }  
+        out.flush();
+        out.close();
     }
 
     /**
@@ -123,8 +129,8 @@ public class TestSuiteFormation {
         String res = "";
         
         try {
-            res = text.replaceAll("\\&nbsp;", "").replaceAll("\\<[^>]*>", "").replaceAll("&gt;", ">")
-                      .replaceAll("&lt;", "<").replaceAll("&quot;", "\"").replaceAll("&laquo;", "«").replaceAll("&raquo;", "»");
+            res = text.replaceAll("\\&nbsp;", "").replaceAll("\\<[^>]*>", "").replaceAll("&gt;", ">").replaceAll("&lt;", "<")
+                      .replaceAll("&quot;", "\"").replaceAll("&laquo;", "«").replaceAll("&raquo;", "»");
         }   catch (Exception ex) {
                 throw new Exception("Ахтунг! Ошибка при замене html-тэгов...\n", ex);
         }  

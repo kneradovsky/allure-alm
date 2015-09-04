@@ -55,6 +55,12 @@ public class RestConnectorTest {
         String testSetId = "301";
         Entities ents;
         List<String> testIds = new ArrayList<>();
+        
+        params.put("query","{id[" + testSetId + "]}");
+        ents = almcon.getEntities("/test-sets", params);
+        
+        String testSetName = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "name");
+        String encodeTestSetName = new String(testSetName.getBytes("iso-8859-1"), "UTF-8" );
 
         params.put("query","{contains-test-set.id[" + testSetId + "]}");
         ents = almcon.getEntities("/test-instances", params);
@@ -64,34 +70,37 @@ public class RestConnectorTest {
                 testIds.add(AlmEntityUtils.getFieldValue(ents.getEntity().get(i), "test-id"));
             } 
         }
+                    
+        File feature = new File("src/test/resources/features/" + encodeTestSetName + ".feature");
+            
+        if (!feature.exists()) {
+            feature.createNewFile();          
+            System.out.println("Фича " + encodeTestSetName + " успешно создана!\n");
+        }
+        else {
+            throw new Exception("Фича уже создана! Удали старую, bleat!");
+        }
         
-        for (String testId : testIds) {
-            params.put("query","{id[" + testId + "]}");
+                    Writer out = new BufferedWriter(new OutputStreamWriter(
+                         new FileOutputStream(feature), "UTF8"));
+        
+        for (int i = 0; i < testIds.size(); i++ ) {
+            params.put("query","{id[" + testIds.toArray()[i] + "]}");
             ents = almcon.getEntities("/tests", params);
-            
-            String testName = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "name");
-            String encodeTestName = new String(testName.getBytes("iso-8859-1"), "UTF-8" );
-            
-            File feature = new File("src/test/resources/features/" + encodeTestName + ".feature");
-            
-            if (!feature.exists()) {
-                feature.createNewFile();
-                System.out.println("Фича создана");
-            }
             
             String testDesciption = AlmEntityUtils.getFieldValue(ents.getEntity().get(0), "description");
             String encodeTestDesciption = new String(testDesciption.getBytes("iso-8859-1"), "UTF-8" );
             String txtUnicodetestDescription = encodeTestDesciption.replaceAll("\\&nbsp;", "").replaceAll("\\<[^>]*>", "").replaceAll("&gt;", ">")
-                                                                   .replaceAll("&lt;", "<").replaceAll("&quot;", "\"").replaceAll("&laquo;", "В«").replaceAll("&raquo;", "В»");
-            Writer out = new BufferedWriter(new OutputStreamWriter(
-                         new FileOutputStream(feature), "UTF8"));
-            try {
+                                                                   .replaceAll("&lt;", "<").replaceAll("&quot;", "\"").replaceAll("&laquo;", "«").replaceAll("&raquo;", "»");
+
+            if (i > 0) {
+               String storyTitleFormated = txtUnicodetestDescription.substring(txtUnicodetestDescription.indexOf("@")); 
+               txtUnicodetestDescription = storyTitleFormated;
+            }
                 out.append(txtUnicodetestDescription);
-            } finally {
+        }  
                 out.flush();
                 out.close();
-            }
-        }      
     }
 
 }
