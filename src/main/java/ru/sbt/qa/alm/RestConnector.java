@@ -56,8 +56,9 @@ import com.hp.alm.rest.Fields;
 import com.hp.alm.rest.ObjectFactory;
 
 
-
-
+/**
+ * Utility class for ALM rest API
+ */
 public class RestConnector {
 	String baseurl,domain,project;
 	String resturl;
@@ -69,6 +70,14 @@ public class RestConnector {
 	Unmarshaller unmarshaller;
 	RequestConfig rqcnf;
 	public final static String restCharset="UTF-8";
+
+	/**
+	 * Constructs rest connector object
+	 * @param url - url of the ALM rest api endpoint
+	 * @param domain - name of the ALM domain to connect to
+	 * @param project - name of the ALM project to connect to
+	 * @throws JAXBException
+	 */
 	public RestConnector(String url,String domain,String project) throws JAXBException {
 		this.baseurl=url;
 		this.domain=domain;
@@ -88,7 +97,13 @@ public class RestConnector {
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		unmarshaller=jaxbctx.createUnmarshaller();
 	}
-	
+
+	/**
+	 * Perform login to the ALM project
+	 * @param username
+	 * @param password
+	 * @return true if successful, false otherwise
+	 */
 	public boolean login(String username,String password) {
 		String unamepass=username+":"+password;
 		String authstr = Base64.getEncoder().encodeToString(unamepass.getBytes());
@@ -97,11 +112,13 @@ public class RestConnector {
 		authget.setConfig(rqcnf);
 		try {
 			HttpResponse resp = client.execute(authget);
+			//check if already authenticated
 			if(resp.getStatusLine().getStatusCode()==HttpURLConnection.HTTP_OK) {
 				logger.debug("Already authenticated");
 				return true;
 			}
 			authget.releaseConnection();
+			//start authentication process. ALM returns authentication URL in the WWW-Authenticate header
 			String wwwauth = resp.getFirstHeader("WWW-Authenticate").getValue();
 			if(wwwauth!=null) {
 				String[] authparts = wwwauth.split("=\"");
@@ -110,6 +127,7 @@ public class RestConnector {
 				logger.debug("noe www-authenticate header, using rest url as auth point");
 				wwwauth=resturl;
 			}
+			//send auth request
 			authget=new HttpGet(wwwauth+"/authenticate");
 			authget.setConfig(rqcnf);
 			authget.addHeader("Authorization","Basic "+authstr);
@@ -122,7 +140,7 @@ public class RestConnector {
 			}
 			authget.releaseConnection();
 			logger.debug("Authentication successfull");
-			//request and store QCSession
+			//we need to request /site-session to store QCSession on the ALM server
 			resp = client.execute(sespost);
 			logger.debug("QCSession is stored");
 			logger.debug(resp.getStatusLine().toString());
@@ -135,7 +153,13 @@ public class RestConnector {
 			sespost.releaseConnection();
 		}
 	}
-	
+
+	/**
+	 * Performs get request of the <i>enturl</i> with <i>params</i> parameters, reads response and returns it
+	 * @param enturl
+	 * @param params
+	 * @return String of the complete response body or null in case of an error
+	 */
 	public String get(String enturl,Map<String,String> params) {
 		String url=resturl+enturl;
 		HttpGet req=null;
@@ -167,7 +191,13 @@ public class RestConnector {
 		
 		
 	}
-	
+
+	/**
+	 * Performs {@link org.apache.http.client.methods.HttpEntityEnclosingRequestBase} (POST,PUT) with <i>data</i> body and returns response or null in case of error
+	 * @param req
+	 * @param data
+	 * @return String of the complete response body or null in case of an error
+	 */
 	public String execRequest(HttpEntityEnclosingRequestBase req,String data) {
 		try {
 			if(data!=null) {
@@ -195,7 +225,14 @@ public class RestConnector {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * JAXB unmarshalling <i>content</i> to the class <i>T</i>
+	 * @param content
+	 * @param cls
+	 * @param <T>
+	 * @return
+	 */
 	public <T> T unmarshall(String content,Class<T> cls) {
 		if(content==null) return null;
 		try {
@@ -206,7 +243,13 @@ public class RestConnector {
 			return null;
 		}
 	}
-	
+
+	/**
+	 * JAXB marshalling object of type T to the String
+	 * @param obj
+	 * @param <T>
+	 * @return
+	 */
 	public <T> String marshall(T obj) {
 		StringWriter wrt = new StringWriter();
 		try {
@@ -217,30 +260,57 @@ public class RestConnector {
 			return null;
 		}
 	}
-	
-	
+
+	/**
+	 * Performs get request of the <i>enturl</i> with <i>params</i> parameters, reads @{link Entity} response and returns it
+	 * @param url
+	 * @param params
+	 * @return {@link Entity} or null in case of error
+	 */
 	public Entity getEntity(String url,Map<String,String> params) {
 		String content = get(url,params);
 		return unmarshall(content, Entity.class);
 	}
-	
+
+	/**
+	 * Performs get request of the <i>enturl</i> with <i>params</i> parameters, reads @{link Entities} response and returns it
+	 * @param url
+	 * @param params
+	 * @return {@link Entities} or null in case of error
+	 */
 	public Entities getEntities(String url,Map<String,String> params) {
 		String content = get(url,params);
 		return unmarshall(content, Entities.class);
 	}
-	
+	/**
+	 * Performs POST {@link Entity} ent request to the url, reads {@link Entity} response and returns it
+	 * @param url
+	 * @param ent - {@link Entity} to post
+	 * @return String of the complete response body or null in case of an error
+	 */
 	public Entity postEntity(String url,Entity ent) {
 		String posturi=resturl+url;
 		HttpPost p = new HttpPost(posturi);
 		return storeEntity(p, ent);
 	}
-	
+	/**
+	 * Performs PUT {@link Entity} ent request to the url, reads {@link Entity} response and returns it
+	 * @param url
+	 * @param ent - {@link Entity} to put
+	 * @return String of the complete response body or null in case of an error
+	 */
 	public Entity putEntity(String url,Entity ent) {
 		String posturi=resturl+url;
 		HttpPut p = new HttpPut(posturi);
 		return storeEntity(p, ent);
 	}
-	
+
+	/**
+	 * Performs {@link org.apache.http.client.methods.HttpEntityEnclosingRequestBase} (POST,PUT) {@link Entity} ent request to the url, reads {@link Entity} response and returns it
+	 * @param req
+	 * @param ent - {@link Entity} to put
+	 * @return String of the complete response body or null in case of an error
+	 */
 	public Entity storeEntity(HttpEntityEnclosingRequestBase req, Entity ent) {
 		ObjectFactory fact = new ObjectFactory();
 		String content = marshall(fact.createEntity(ent));
@@ -248,9 +318,14 @@ public class RestConnector {
 		String result=execRequest(req, content);
 		return unmarshall(result, Entity.class);
 	}
-	
 
-
+	/**
+	 * Adds <i>url</i> attachment named <i>name</i> to the {@link Entity} ent and post the ent to the ALM server
+	 * @param ent - {@link Entity} to modify
+	 * @param name - name of the attachment
+	 * @param url - body of the attachment (URL)
+	 * @return
+	 */
 	public boolean postRunUrlAttachment(Entity ent,String name,String url) {
 		String runid = AlmEntityUtils.getFieldValue(ent, "id");
 		String posturi=resturl+"/runs/"+runid+"/attachments";
@@ -271,7 +346,12 @@ public class RestConnector {
 		logger.debug("post run attachment result:"+result);
 		return true;
 	}
-	
+
+	/**
+	 * Recursively creates folder <i>folderName</i> and all its parents if they don't exist
+	 * @param folderName
+	 * @return {@link Entity} of the created folder
+	 */
 	public Entity createFolder(String folderName) {
 		Path path = Paths.get(folderName);
 		String currentParentId="0";
@@ -288,7 +368,13 @@ public class RestConnector {
 		}
 		return currentFolder;
 	}
-	
+
+	/**
+	 * Checks if folder <i>name</i> exists as a child of the folder with id = <i>parentId</i> and creates it if it doesn't exist
+	 * @param parentId
+	 * @param name
+	 * @return {@link Entity} of the created folder
+	 */
 	protected Entity checkAndCreateFolder(String parentId,String name) {
 		Map<String,String> params = new HashMap<>();
 		params.put("query","{parent-id["+parentId+"];name['"+name+"']}");
@@ -304,7 +390,13 @@ public class RestConnector {
 		Entity resent = postEntity("/test-set-folders", ent);
 		return resent;
 	}
-	
+
+	/**
+	 * Checks if testcase <i>tsName</i> exists as a child of the folder with id = <i>parentId</i> and creates it if it doesn't exist
+	 * @param parentId
+	 * @param tsName
+	 * @return {@link Entity} of the created test case
+	 */
 	public Entity checkAndCreateTestSet(String parentId,String tsName) {
 		Map<String,String> params = new HashMap<>();
 		params.put("query","{parent-id["+parentId+"];name['"+tsName+"']}");
@@ -321,7 +413,12 @@ public class RestConnector {
 		Entity resent = postEntity("/test-sets", ent);
 		return resent;		
 	}
-	
+	/**
+	 * Checks if test instance of the <i>testId</i> exists in the test set <i>testSetId</i> and creates it if it doesn't exist
+	 * @param testSetId
+	 * @param testId
+	 * @return {@link Entity} of the created test instanse
+	 */
 	public Entity checkAndCreateTestInstance(String testSetId,String testId) {
 		Map<String,String> params = new HashMap<>();
 		//get the number of test instances in the testcase
@@ -337,7 +434,7 @@ public class RestConnector {
 		Entity ent = new Entity().withType("test-instance").withFields(new Fields().withField(
 				new Field().withName("cycle-id").withValue(new Value().withValue(testSetId)),
 				new Field().withName("test-id").withValue(new Value().withValue(testId)),
-				new Field().withName("test-order").withValue(new Value().withValue(testOrder.toString())),
+				//new Field().withName("test-order").withValue(new Value().withValue(testOrder.toString())),
 				new Field().withName("subtype-id").withValue(new Value().withValue("hp.qc.test-instance.MANUAL"))
 		));
 		Entity resent = postEntity("/test-instances", ent);
