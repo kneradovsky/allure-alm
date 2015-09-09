@@ -109,6 +109,7 @@ public class Reporter {
             }
             //construct folder name as concatenation of the constant part - alm.baseFolder and variable part base on the current time
             //variable part is formatted as specified in the alm.resFolderPtrn property
+
             String currentFolder = almprops.getProperty("alm.baseFolder","/")+"/"+
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern(almprops.getProperty("alm.resFolderPtrn", "yyyyMMddHHmmSS")));
             Entity folder=almcon.createFolder(currentFolder);
@@ -155,7 +156,7 @@ public class Reporter {
                 fldsTestInst.put("last-modified", curDate +" "+curTime);
                 fldsTestInst.put("actual-tester", owner);
                 testInstance = AlmEntityUtils.map2Entity("test-instance", fldsTestInst);
-                almcon.putEntity("/test-instances/"+tc.testInstId, testInstance);
+                Entity tmpEnt = almcon.putEntity("/test-instances/"+tc.testInstId, testInstance);
                 //get the test run id that has been just created
                 Map<String,String> params = new HashMap<>();
                 //get the number of test runs of the test instance
