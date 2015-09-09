@@ -1,0 +1,465 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"go",
+				"goal"
+			],
+			[
+				"goa",
+				"goals"
+			],
+			[
+				"ex",
+				"execution"
+			],
+			[
+				"xml",
+				"xmlns"
+			],
+			[
+				"En",
+				"EntityDescriptor"
+			],
+			[
+				"de",
+				"defect-link-type"
+			],
+			[
+				"sche",
+				"schemas"
+			],
+			[
+				"sc",
+				"schemas"
+			],
+			[
+				"st",
+				"stopKey"
+			],
+			[
+				"stop",
+				"stopPort"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-data/pom.xml",
+			"settings":
+			{
+				"buffer_size": 6142,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-model/pom.xml",
+			"settings":
+			{
+				"buffer_size": 4142,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-face/pom.xml",
+			"settings":
+			{
+				"buffer_size": 10375,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-face/src/main/webapp/index.html",
+			"settings":
+			{
+				"buffer_size": 7775,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "Packages/User/gradle.sublime-build",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 81.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2deb499853c4371624f5a07e27c334aa' + 'bf8c4e67d14fb0525ba4f89698a6d7e1'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/SBT-Neradovsky-KL/dev/sbt-alm/javascripts"
+	],
+	"file_history":
+	[
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-report-builder/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-report-builder/src/main/java/ru/yandex/qatools/allure/report/AllureArtifacts.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-report-builder/src/main/java/ru/yandex/qatools/allure/report/AllureReportBuilder.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-maven-plugin/src/main/java/ru/yandex/qatools/allure/report/AllureReportMojo.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/sbt-alm/index.html",
+		"/C/Users/SBT-Neradovsky-KL/dev/JazzCLA2/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/mvnrepos/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/JazzCLA2/SupportConversation.txt",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-data/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/allure-report-data/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-face/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-model/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/allure-report-face/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/allure-report-face/src/main/webapp/index.html",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-cli/src/main/java/ru/yandex/qatools/allure/AllureCLI.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-cli/src/main/java/ru/yandex/qatools/allure/command/ReportGenerate.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/allure-report-face/src/main/webapp/js/app.js",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-cli/src/main/java/ru/yandex/qatools/allure/command/ReportCommand.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core/allure-report-data/src/main/java/ru/yandex/qatools/allure/data/AllureReportGenerator.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/Gemfile",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/dashenee.gemspec",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/README.md",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/unzip.py",
+		"/C/Users/SBT-Neradovsky-KL/dev/jazz1.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/test_helper.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/cli_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/templates/widget/%name%/%name%.scss.tt",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/app_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/downloader_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/eventsengine_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/serversentevents_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/test/websockets_test.rb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/Rakefile",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/shipit.rubygems.yml",
+		"/C/Users/SBT-Neradovsky-KL/dev/TcpServer.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/res",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing/index.html",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/readme.md",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing-nodejs/README.md",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing-nodejs/test/dashboards_test.js",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing-nodejs/test/websocket_test.js",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing-nodejs/lib/websockets.js",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashing-nodejs/test/webserver_test.js",
+		"/C/Users/SBT-Neradovsky-KL/AppData/Local/sublime/Data/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/SBT-Neradovsky-KL/AppData/Local/sublime/Data/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/SBT-Neradovsky-KL/AppData/Local/sublime/Data/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/SBT-Neradovsky-KL/AppData/Local/sublime/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/test/java/ru/sbt/qatools/tests/stepdefs/CukeStepDefs.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/test/resources/features/testListener.feature",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/eventlog.xsd",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/entity-descriptor.xsd",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/entity.xsd",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/domain.xsd",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/defect-link.xsd",
+		"/C/Users/SBT-Neradovsky-KL/.m2/settings.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/build.gradle",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/dep.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/xjb/almbindings.xjb",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-support/src/main/schemas/hp/almbindings.xjb",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/src/test/java/ru/kn/dashws/test/HistoryTest.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/src/test/java/ru/kn/dashws/test/SubscribtionsTest.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/src/test/java/ru/kn/dashws/test/WebServerTest.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/src/test/java/ru/kn/dashws/test/WebSocketTest.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/src/test/java/ru/kn/dashws/test/WSClient.java",
+		"/C/Users/SBT-Neradovsky-KL/dev/hpalm-maven/pom.xml",
+		"/C/Users/SBT-Neradovsky-KL/dev/dashws-java/.gitignore",
+		"/C/Users/SBT-Neradovsky-KL/AppData/Local/sublime/Data/Packages/User/gradle.sublime-build"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"C:\\Users\\SBT-Neradovsky-KL\\dev\\dashing"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"\"/allure/",
+			"model",
+			"allure-model",
+			"<script src=\"",
+			"outputDire",
+			"getReportDataArtifact",
+			"loadSettings",
+			"dashing",
+			"Dashing",
+			"dashing",
+			"dashinh",
+			"'+process.env.IP+'",
+			"\"+process.env.IP+\"",
+			"event",
+			"'"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\"/userContent/allure/",
+			"dashenee",
+			"Dashenee",
+			"localhost",
+			"\""
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-data/pom.xml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6142,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								481,
+								481
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-model/pom.xml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4142,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								545,
+								545
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-face/pom.xml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10375,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								551,
+								551
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/C/Users/SBT-Neradovsky-KL/dev/allure/allure-core-1.4.5/allure-report-face/src/main/webapp/index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7775,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								711,
+								711
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 158.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "sbt-alm.sublime-project",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 251.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
